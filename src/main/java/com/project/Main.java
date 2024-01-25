@@ -4,11 +4,8 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
-/*
+import java.util.Collection;
 
-Help: https://www.baeldung.com/hibernate-one-to-many
-
-*/
 
 public class Main {
 
@@ -26,36 +23,46 @@ public class Main {
 
       Manager.createSessionFactory();
 
-      Cart refCart1 = Manager.addCart("Cart 1");
-      Cart refCart2 = Manager.addCart("Cart 2");
-      Cart refCart3 = Manager.addCart("Cart 3");
+      Ciutat ciutat1 = Manager.addCiutat("Barcelona", "Spain", 18001);
+      Ciutat ciutat2 = Manager.addCiutat("Paris", "France", 75001);
+      Ciutat ciutat3 = Manager.addCiutat("New York", "USA", 10001);
 
-      Item refItem1 = Manager.addItem("Item 1");
-      Item refItem2 = Manager.addItem("Item 2");
-      Item refItem3 = Manager.addItem("Item 3");
-      Item refItem4 = Manager.addItem("Item 4");
-      Item refItem5 = Manager.addItem("Item 5");
-      Item refItem6 = Manager.addItem("Item 6");
+      Ciutada ciutada1 = Manager.addCiutada(ciutat1.getCiutatId(), "John", "Doe", 30);
+      Ciutada ciutada2 = Manager.addCiutada(ciutat1.getCiutatId(), "Alice", "Smith", 25);
 
-      Set<Item> itemsCard1 = new HashSet<Item>();
-      itemsCard1.add(refItem1);
-      itemsCard1.add(refItem2);
-      itemsCard1.add(refItem3);
+      Ciutada ciutada3 = Manager.addCiutada(ciutat2.getCiutatId(), "Bob", "Johnson", 40);
+      Ciutada ciutada4 = Manager.addCiutada(ciutat2.getCiutatId(), "Eva", "Brown", 35);
 
-      Manager.updateCart(refCart1.getCartId(), refCart1.getType(), itemsCard1);
+      Ciutada ciutada5 = Manager.addCiutada(ciutat3.getCiutatId(), "Michael", "Miller", 28);
+      Ciutada ciutada6 = Manager.addCiutada(ciutat3.getCiutatId(), "Sophie", "Davis", 22);
 
-      Set<Item> itemsCard2 = new HashSet<Item>();
-      itemsCard2.add(refItem4);
-      itemsCard2.add(refItem5);
+      System.out.println("Ciutats i Ciutadans inicials:");
+      printCiutatsAndCiutadans();
 
-      Manager.updateCart(refCart2.getCartId(), refCart2.getType(), itemsCard2);
+      // Esborra el segon ciutadà de cada ciutat
+      Manager.delete(Ciutada.class, ciutada2.getId());
+      Manager.delete(Ciutada.class, ciutada4.getId());
+      Manager.delete(Ciutada.class, ciutada6.getId());
 
-      Manager.delete(Cart.class, refCart3.getCartId());
-      Manager.delete(Item.class, refItem6.getItemId());
+      // Esborra la segona ciutat
+      Manager.delete(Ciutat.class, ciutat2.getCiutatId());
 
-      System.out.println(Manager.collectionToString(Cart.class, Manager.listCollection(Cart.class, "")));
-      System.out.println(Manager.collectionToString(Item.class, Manager.listCollection(Item.class, "")));
+      System.out.println("\nCiutats i Ciutadans després d'esborrar:");
+      printCiutatsAndCiutadans();
 
       Manager.close();
+   }
+
+   private static void printCiutatsAndCiutadans() {
+      Collection<?> ciutats = Manager.listCollection(Ciutat.class);
+      for (Object obj : ciutats) {
+         Ciutat cObj = (Ciutat) obj;
+         System.out.println("Ciutadans de " + cObj.getNom() + ":");
+         Collection<?> ciutadans = Manager.listCollection(Ciutada.class, "ciutatId=" + cObj.getCiutatId());
+         for (Object obj2 : ciutadans) {
+               Ciutada cObj2 = (Ciutada) obj2;
+               System.out.println("    " + cObj2.toString());
+         }
+      }
    }
 }
